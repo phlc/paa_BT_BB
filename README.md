@@ -1,2 +1,3 @@
 # paa_BT_BB
-About Backtracking and Branch-N-Bound
+Course: Algorithm Design and Analysis
+Repository for some work on Backtracking and Branch-N-Bound
