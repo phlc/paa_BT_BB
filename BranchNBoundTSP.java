@@ -158,7 +158,7 @@ class No{
             }
 
             if(menorLinha != Grafo.INFINITO)
-                this.reducao += Grafo.INFINITO;
+                this.reducao += menorLinha;
 
             menorLinha = Grafo.INFINITO;
         }
@@ -178,29 +178,50 @@ class No{
 
             if(menorColuna != Grafo.INFINITO)
                 this.reducao += menorColuna;
-
+           
             menorColuna = Grafo.INFINITO;
         }
     }
 }
 
 /*
-Classe Principal - BacktrackingNQueens
+Classe Principal - BranchNBoundTSP
 */
 public class BranchNBoundTSP{
 
     public static int TSPRec(No pai, ArrayList<Integer> naoVisitados, int atual, int anterior, 
-                             int[] caminhoAtual, int nivel){
-       caminhoAtual[nivel] = atual;
-       No n = new No(pai.numVertices, pai.matrizReduzida, caminhoAtual, atual, anterior);
-       n.printMatriz();
-       return 0;
+                             int[] caminhoAtual, int nivel, int menorCaminhoAtual){
+        int aux;
+        int menorCaminho = Grafo.INFINITO;
+
+        caminhoAtual[nivel] = atual;
+        No n = new No(pai.numVertices, pai.matrizReduzida, caminhoAtual, atual, anterior);
+        n.reducao = n.reducao + pai.reducao + pai.matrizReduzida[anterior][atual];
+
+        //System.out.println(n.reducao );
+        
+        if(naoVisitados.isEmpty()){
+            return menorCaminho = menorCaminho < n.reducao ? menorCaminho : n.reducao;
+        } else{
+            for(int i = 0; i < n.numVertices - nivel - 1; i++){
+                int prox = naoVisitados.remove(0);
+                aux = TSPRec(n, naoVisitados, prox, atual, caminhoAtual, nivel + 1, menorCaminhoAtual);
+
+                menorCaminho = menorCaminho < aux ? menorCaminho : aux;
+                naoVisitados.add(prox);
+            }
+        }
+
+        return menorCaminho;
     }
 
     public static int TSP(Grafo g){
+        int menorCaminho = Grafo.INFINITO;
+        int aux = 0;
         int[] caminhoAtual = new int[g.numVertices + 1];
         caminhoAtual[0] = 0;
         ArrayList<Integer> naoVisitados = new ArrayList();
+        
 
         for(int i = 1; i < g.numVertices; i++)
             naoVisitados.add(i);
@@ -209,12 +230,13 @@ public class BranchNBoundTSP{
        // n.printMatriz();
        
         int prox;
-        while(!naoVisitados.isEmpty()){
+        for(int i = 0; i < g.numVertices; i++) {
             prox = naoVisitados.remove(0);
-            TSPRec(n, naoVisitados, prox, 0, caminhoAtual, 1);
+            aux = TSPRec(n, new ArrayList(naoVisitados), prox, 0, caminhoAtual, 1, menorCaminho);
+            menorCaminho = menorCaminho < aux ? menorCaminho : aux;
+            naoVisitados.add(prox);
         }
-
-        return 1;   
+        return menorCaminho;
     }
 
     /*
@@ -253,7 +275,8 @@ public class BranchNBoundTSP{
             g.adicionarAresta(v1, v2, valor);
         }
 
-        TSP(g);
        // g.printGrafo();
+       //TSP(g);
+       System.out.println(TSP(g));
     }  
 }
